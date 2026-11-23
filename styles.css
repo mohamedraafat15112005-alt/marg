@@ -408,6 +408,28 @@ main { overflow-x: clip; }
 .contact-form .btn { justify-self: start; margin-top: .25rem; }
 .form-status { font-size: 1rem; min-height: 1.6em; }
 .form-status.is-error { color: #FFB0BB; }
+.form-status.is-success { color: var(--dawn); }
+.contact-form.is-sending .btn { opacity: .7; cursor: progress; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+/* WhatsApp: a line in the contact details and a floating button */
+.wa-link { display: inline-flex; align-items: center; gap: .5rem; }
+.wa-link svg { width: 1.15rem; height: 1.15rem; color: #25D366; flex: none; }
+.wa-float {
+  position: fixed; right: clamp(1rem, 2.5vw, 1.75rem); bottom: clamp(1rem, 2.5vw, 1.75rem); z-index: 90;
+  display: inline-flex; align-items: center; gap: .6rem;
+  height: 3.5rem; padding: 0 1.05rem; border-radius: 999px;
+  color: #fff; text-decoration: none; font-weight: 500; font-size: 1rem;
+  background: linear-gradient(135deg, #25D366, #128C7E);
+  box-shadow: 0 12px 30px -8px rgba(18, 140, 126, .65), 0 0 0 1px rgba(255, 255, 255, .15) inset;
+  transition: transform .4s var(--ease), box-shadow .4s;
+}
+.wa-float svg { width: 1.5rem; height: 1.5rem; flex: none; }
+.wa-float-label { max-width: 0; overflow: hidden; white-space: nowrap; opacity: 0; transition: max-width .5s var(--ease), opacity .3s; }
+.wa-float:hover, .wa-float:focus-visible { transform: translateY(-3px); box-shadow: 0 18px 40px -10px rgba(18, 140, 126, .8); }
+.wa-float:hover .wa-float-label, .wa-float:focus-visible .wa-float-label { max-width: 12rem; opacity: 1; }
+.anim .wa-float { animation: wa-in .8s var(--ease) 4s both; }
+@keyframes wa-in { from { opacity: 0; transform: translateY(1.5rem) scale(.8); } }
 
 /* Project type: glass chips; the chosen one takes the logo gradient */
 .type-pick { border: 0; margin: 0 0 .35rem; padding: 0; display: flex; flex-wrap: wrap; gap: .55rem; }

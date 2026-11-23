@@ -28,15 +28,24 @@
   addEventListener('scroll', () => onScroll(scrollY), { passive: true });
 
   /* ---------- Contact form ---------- */
-  // Project requests open the visitor's email app addressed to MARG.
+  // Requests go straight to MARG's Gmail through FormSubmit (free, no account).
   const CONTACT_EMAIL = 'mohamedraafat15112005@gmail.com';
+  const FORM_ENDPOINT = `https://formsubmit.co/ajax/${CONTACT_EMAIL}`;
   const form = $('#contact-form');
   const status = $('.form-status', form);
+  const submitBtn = $('button[type="submit"]', form);
+  const submitLabel = $('span', submitBtn);
+  const setStatus = (text, isError = false) => {
+    status.classList.toggle('is-error', isError);
+    status.classList.toggle('is-success', !isError && !!text);
+    status.textContent = text;
+  };
   form.addEventListener('input', (e) => {
     if (e.target.getAttribute('aria-invalid') === 'true' && e.target.value.trim()) e.target.setAttribute('aria-invalid', 'false');
   });
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (form.classList.contains('is-sending')) return;
     let firstInvalid = null;
     $$('[required]', form).forEach((field) => {
       const ok = field.checkValidity() && field.value.trim() !== '';
@@ -44,17 +53,46 @@
       if (!ok && !firstInvalid) firstInvalid = field;
     });
     if (firstInvalid) {
-      status.textContent = 'Add your name, a valid work email and a few words about your project, then send again.';
-      status.classList.add('is-error');
+      setStatus('Add your name, a valid work email and a few words about your project, then send again.', true);
       firstInvalid.focus();
       return;
     }
     const d = new FormData(form);
-    const subject = `New ${d.get('type')} project: ${d.get('company') || d.get('name')}`;
-    const body = `Project type: ${d.get('type')}\nName: ${d.get('name')}\nCompany: ${d.get('company')}\nEmail: ${d.get('email')}\n\n${d.get('message')}`;
-    location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    status.classList.remove('is-error');
-    status.textContent = 'Your email app is opening with the message ready to send.';
+    if (d.get('_honey')) return; // filled in by a spam bot
+    const company = String(d.get('company') || '').trim();
+    const payload = {
+      _subject: `New ${d.get('type')} project from ${d.get('name')}${company ? ` (${company})` : ''}`,
+      _template: 'table',
+      _captcha: 'false',
+      'Project type': d.get('type'),
+      name: d.get('name'),
+      email: d.get('email'),
+      Company: company || '-',
+      message: d.get('message'),
+    };
+    form.classList.add('is-sending');
+    submitBtn.disabled = true;
+    submitLabel.textContent = 'Sending...';
+    setStatus('');
+    try {
+      const res = await fetch(FORM_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const out = await res.json().catch(() => ({}));
+      if (!res.ok || String(out.success) !== 'true') throw new Error(out.message || 'Request failed');
+      const first = String(d.get('name')).trim().split(/\s+/)[0];
+      form.reset();
+      $$('[aria-invalid]', form).forEach((f) => f.removeAttribute('aria-invalid'));
+      setStatus(`Thanks, ${first}. Your project details are with us, and we will reply to your email within two working days.`);
+    } catch (err) {
+      setStatus('Your message could not be sent. Please try again, or reach us on WhatsApp or by email.', true);
+    } finally {
+      form.classList.remove('is-sending');
+      submitBtn.disabled = false;
+      submitLabel.textContent = 'Send project details';
+    }
   });
 
   if (!ANIM) {
