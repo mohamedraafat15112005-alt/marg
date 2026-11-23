@@ -74,8 +74,11 @@
     submitBtn.disabled = true;
     submitLabel.textContent = 'Sending...';
     setStatus('');
+    const timer = new AbortController();
+    const timeout = setTimeout(() => timer.abort(), 25000); // never leave a visitor waiting
     try {
       const res = await fetch(FORM_ENDPOINT, {
+        signal: timer.signal,
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify(payload),
@@ -87,8 +90,9 @@
       $$('[aria-invalid]', form).forEach((f) => f.removeAttribute('aria-invalid'));
       setStatus(`Thanks, ${first}. Your project details are with us, and we will reply to your email within two working days.`);
     } catch (err) {
-      setStatus('Your message could not be sent. Please try again, or reach us on WhatsApp or by email.', true);
+      setStatus('Your message could not be sent right now. Please reach us on WhatsApp or by email (both listed here), or try again in a few minutes.', true);
     } finally {
+      clearTimeout(timeout);
       form.classList.remove('is-sending');
       submitBtn.disabled = false;
       submitLabel.textContent = 'Send project details';
