@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mohamedraafat15112005-alt.github.io/marg/sitemap.xml
