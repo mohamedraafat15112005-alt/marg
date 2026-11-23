@@ -28,8 +28,8 @@
   addEventListener('scroll', () => onScroll(scrollY), { passive: true });
 
   /* ---------- Contact form ---------- */
-  // Replace with your real address, or connect the form to a service such as Formspree.
-  const CONTACT_EMAIL = 'hello@marg.example';
+  // Project requests open the visitor's email app addressed to MARG.
+  const CONTACT_EMAIL = 'mohamedraafat15112005@gmail.com';
   const form = $('#contact-form');
   const status = $('.form-status', form);
   form.addEventListener('input', (e) => {
