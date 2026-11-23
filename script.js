@@ -90,7 +90,7 @@
       $$('[aria-invalid]', form).forEach((f) => f.removeAttribute('aria-invalid'));
       setStatus(`Thanks, ${first}. Your project details are with us, and we will reply to your email within two working days.`);
     } catch (err) {
-      setStatus('Your message could not be sent right now. Please reach us on WhatsApp or by email (both listed here), or try again in a few minutes.', true);
+      setStatus('Your message could not be sent right now. Please email or call us using the details here, or try again in a few minutes.', true);
     } finally {
       clearTimeout(timeout);
       form.classList.remove('is-sending');
